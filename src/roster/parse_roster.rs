@@ -95,11 +95,27 @@ fn get_rules(u: &Element) -> Vec<Rule> {
         if c0.is("rules", NS) {
             for c1 in c0.children() {
                 if c1.is("rule", NS) {
-                    println!("{:#?}", c1);
                     let id: String = get_attr(c1, "id");
                     let name: String = get_attr(c1, "name");
                     let description: String = get_rule_description(c1);
                     rules.push(Rule::new(id, name, description));
+                }
+            }
+        }
+
+        if c0.is("profiles", NS) {
+            for c1 in c0.children() {
+                if c1.is("profile", NS) {
+                    if match c1.attr("typeName") {
+                        Some("Abilities") => true,
+                        Some(_) => false,
+                        None => false,
+                    } {
+                        let id: String = get_attr(c1, "id");
+                        let name: String = get_attr(c1, "name");
+                        let description: String = get_ability_description(c1);
+                        rules.push(Rule::new(id, name, description));
+                    }
                 }
             }
         }
@@ -112,6 +128,25 @@ fn get_rule_description(r: &Element) -> String {
     for c0 in r.children() {
         if c0.is("description", NS) {
             return c0.text();
+        }
+    }
+    String::from("")
+}
+
+fn get_ability_description(a: &Element) -> String {
+    for c0 in a.children() {
+        if c0.is("characteristics", NS) {
+            for c1 in c0.children() {
+                if c1.is("characteristic", NS) {
+                    if match c1.attr("name") {
+                        Some("Description") => true,
+                        Some(_) => false,
+                        None => false,
+                    } {
+                        return c1.text();
+                    }
+                }
+            }
         }
     }
     String::from("")
