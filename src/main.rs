@@ -5,7 +5,8 @@ use std::process;
 
 mod roster;
 
-const LINE: &'static str = "=======";
+const BIG_LINE: &'static str = "=======";
+const SMALL_LINE: &'static str = "-----";
 
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -41,11 +42,22 @@ fn parse_args(args: &[String]) -> Result<String, std::io::Error> {
 }
 
 fn display_roster(roster: &Roster) {
-    println!("{}{}{}", LINE, roster.get_name(), LINE);
+    println!("{}{}{}", BIG_LINE, roster.get_name(), BIG_LINE);
     println!("Power Level: {:.1}", roster.get_power_level());
     println!("Points: {:.1}", roster.get_points());
     for force in roster.get_forces() {
-        println!("{}{}{}", LINE, force.get_name(), LINE);
+        println!("{}{}{}", BIG_LINE, force.get_name(), BIG_LINE);
         println!("Faction: {}", force.get_faction());
+        for unit in force.get_units() {
+            println!("{}{}{}", BIG_LINE, unit.get_name(), BIG_LINE);
+            println!("{}Rules{}", SMALL_LINE, SMALL_LINE);
+            for rule in unit.get_rules() {
+                println!("{}", SMALL_LINE);
+                println!("{}", rule.get_name());
+                println!("{}", rule.get_description());
+            }
+            // println!("{}{}{}", SMALL_LINE, SMALL_LINE, SMALL_LINE);
+        }
+        // println!("{}{}{}", BIG_LINE, BIG_LINE, BIG_LINE);
     }
 }

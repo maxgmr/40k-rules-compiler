@@ -28,6 +28,7 @@ impl Roster {
 pub struct Force {
     faction: String,
     name: String,
+    units: Vec<Unit>,
 }
 
 impl Force {
@@ -36,6 +37,45 @@ impl Force {
     }
     pub fn get_name(&self) -> &String {
         &self.name
+    }
+    pub fn get_units(&self) -> &Vec<Unit> {
+        &self.units
+    }
+}
+
+pub struct Unit {
+    id: String,
+    name: String,
+    rules: Vec<Rule>,
+}
+
+impl Unit {
+    pub fn get_id(&self) -> &String {
+        &self.id
+    }
+    pub fn get_name(&self) -> &String {
+        &self.name
+    }
+    pub fn get_rules(&self) -> &Vec<Rule> {
+        &self.rules
+    }
+}
+
+pub struct Rule {
+    id: String,
+    name: String,
+    description: String,
+}
+
+impl Rule {
+    pub fn get_id(&self) -> &String {
+        &self.id
+    }
+    pub fn get_name(&self) -> &String {
+        &self.name
+    }
+    pub fn get_description(&self) -> &String {
+        &self.description
     }
 }
 
@@ -106,18 +146,84 @@ fn get_forces(r: &Element) -> Vec<Force> {
         if c0.is("forces", NS) {
             for c1 in c0.children() {
                 if c1.is("force", NS) {
-                    let faction = match c1.attr("catalogueName") {
-                        Some(x) => String::from(x),
-                        None => String::from(""),
-                    };
-                    let name = match c1.attr("name") {
-                        Some(x) => String::from(x),
-                        None => String::from(""),
-                    };
-                    forces.push(Force { faction, name });
+                    let faction = get_attr(c1, "catalogueName");
+                    let name = get_attr(c1, "name");
+                    let units: Vec<Unit> = get_units(c1);
+
+                    forces.push(Force {
+                        faction,
+                        name,
+                        units,
+                    });
                 }
             }
         }
     }
     forces
+}
+
+fn get_units(f: &Element) -> Vec<Unit> {
+    let mut units: Vec<Unit> = vec![];
+
+    for c0 in f.children() {
+        if c0.is("selections", NS) {
+            for c1 in c0.children() {
+                if c1.is("selection", NS) {
+                    if match c1.attr("type") {
+                        Some("model") => true,
+                        Some("unit") => true,
+                        Some(_) => false,
+                        None => false,
+                    } {
+                        let id: String = get_attr(c1, "id");
+                        let name: String = get_attr(c1, "name");
+                        let rules: Vec<Rule> = get_rules(c1);
+                        units.push(Unit { id, name, rules });
+                    }
+                }
+            }
+        }
+    }
+
+    units
+}
+
+fn get_rules(u: &Element) -> Vec<Rule> {
+    let mut rules: Vec<Rule> = vec![];
+
+    for c0 in u.children() {
+        if c0.is("rules", NS) {
+            for c1 in c0.children() {
+                if c1.is("rule", NS) {
+                    println!("{:#?}", c1);
+                    let id: String = get_attr(c1, "id");
+                    let name: String = get_attr(c1, "name");
+                    let description: String = get_rule_description(c1);
+                    rules.push(Rule {
+                        id,
+                        name,
+                        description,
+                    });
+                }
+            }
+        }
+    }
+
+    rules
+}
+
+fn get_rule_description(r: &Element) -> String {
+    for c0 in r.children() {
+        if c0.is("description", NS) {
+            return c0.text();
+        }
+    }
+    String::from("")
+}
+
+fn get_attr(e: &Element, s: &str) -> String {
+    match e.attr(s) {
+        Some(x) => String::from(x),
+        None => String::from(""),
+    }
 }
