@@ -1,5 +1,5 @@
 use minidom::Element;
-use roster::load_ros::Roster;
+use roster::data::Roster;
 use std::env;
 use std::process;
 
@@ -23,7 +23,7 @@ fn main() -> std::io::Result<()> {
 
     let root: Element = roster::load_ros::get_xml(&ros_str);
 
-    let roster: Roster = roster::load_ros::create_roster(&root);
+    let roster: Roster = roster::parse_roster::create_roster(&root);
 
     display_roster(&roster);
 
