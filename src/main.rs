@@ -3,6 +3,7 @@ use roster::data::Roster;
 use std::env;
 use std::process;
 
+mod database;
 mod roster;
 
 const BIG_LINE: &'static str = "=======";
@@ -16,7 +17,12 @@ fn main() -> std::io::Result<()> {
     });
     file_name.push_str(".ros");
 
-    let ros_str = roster::load_ros::read_ros(&file_name).unwrap_or_else(|err| {
+    let rules = database::stored_rules::read_rules().unwrap_or_else(|err| {
+        eprintln!("Problem reading rules.json: {err}");
+        process::exit(1);
+    });
+
+    let ros_str: String = roster::load_ros::read_ros(&file_name).unwrap_or_else(|err| {
         eprintln!("Problem reading .ros file: {err}");
         process::exit(1);
     });

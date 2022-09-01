@@ -1,0 +1,13 @@
+[
+    {
+        "name": "Test Rule",
+        "description": "This is a test rule.",
+        "phase": 1,
+        "turn": 0,
+        "conditions": [
+            "Warlord",
+            "Inexorable",
+            "Death Guard"
+        ]
+    }
+]

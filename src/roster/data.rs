@@ -58,11 +58,11 @@ impl Force {
 pub struct Unit {
     id: String,
     name: String,
-    rules: Vec<Rule>,
+    rules: Vec<RosterRule>,
 }
 
 impl Unit {
-    pub fn new(id: String, name: String, rules: Vec<Rule>) -> Unit {
+    pub fn new(id: String, name: String, rules: Vec<RosterRule>) -> Unit {
         Unit { id, name, rules }
     }
     pub fn get_id(&self) -> &String {
@@ -71,20 +71,20 @@ impl Unit {
     pub fn get_name(&self) -> &String {
         &self.name
     }
-    pub fn get_rules(&self) -> &Vec<Rule> {
+    pub fn get_rules(&self) -> &Vec<RosterRule> {
         &self.rules
     }
 }
 
-pub struct Rule {
+pub struct RosterRule {
     id: String,
     name: String,
     description: String,
 }
 
-impl Rule {
-    pub fn new(id: String, name: String, description: String) -> Rule {
-        Rule {
+impl RosterRule {
+    pub fn new(id: String, name: String, description: String) -> RosterRule {
+        RosterRule {
             id,
             name,
             description,

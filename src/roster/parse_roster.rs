@@ -1,6 +1,6 @@
 use minidom::Element;
 
-use crate::roster::data::{Force, Roster, Rule, Unit};
+use crate::roster::data::{Force, Roster, RosterRule, Unit};
 
 const NS: &'static str = "http://www.battlescribe.net/schema/rosterSchema";
 
@@ -77,7 +77,7 @@ fn get_units(f: &Element) -> Vec<Unit> {
                     } {
                         let id: String = get_attr(c1, "id");
                         let name: String = get_attr(c1, "name");
-                        let rules: Vec<Rule> = get_rules(c1);
+                        let rules: Vec<RosterRule> = get_rules(c1);
                         units.push(Unit::new(id, name, rules));
                     }
                 }
@@ -88,8 +88,8 @@ fn get_units(f: &Element) -> Vec<Unit> {
     units
 }
 
-fn get_rules(u: &Element) -> Vec<Rule> {
-    let mut rules: Vec<Rule> = vec![];
+fn get_rules(u: &Element) -> Vec<RosterRule> {
+    let mut rules: Vec<RosterRule> = vec![];
 
     for c0 in u.children() {
         if c0.is("rules", NS) {
@@ -98,7 +98,7 @@ fn get_rules(u: &Element) -> Vec<Rule> {
                     let id: String = get_attr(c1, "id");
                     let name: String = get_attr(c1, "name");
                     let description: String = get_rule_description(c1);
-                    rules.push(Rule::new(id, name, description));
+                    rules.push(RosterRule::new(id, name, description));
                 }
             }
         }
@@ -114,7 +114,7 @@ fn get_rules(u: &Element) -> Vec<Rule> {
                         let id: String = get_attr(c1, "id");
                         let name: String = get_attr(c1, "name");
                         let description: String = get_ability_description(c1);
-                        rules.push(Rule::new(id, name, description));
+                        rules.push(RosterRule::new(id, name, description));
                     }
                 }
             }
