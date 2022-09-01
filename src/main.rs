@@ -1,13 +1,17 @@
+use database::stored_rules::{Phase, Rule, Turn};
 use minidom::Element;
+use organise::compile_rules::OrganisedRules;
 use roster::data::Roster;
 use std::env;
 use std::process;
 
 mod database;
+mod organise;
 mod roster;
 
 const BIG_LINE: &'static str = "=======";
 const SMALL_LINE: &'static str = "-----";
+const TEST_MODE: bool = true;
 
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -22,6 +26,10 @@ fn main() -> std::io::Result<()> {
         process::exit(1);
     });
 
+    if TEST_MODE {
+        println!("{} rules found in database.", rules.len());
+    }
+
     let ros_str: String = roster::load_ros::read_ros(&file_name).unwrap_or_else(|err| {
         eprintln!("Problem reading .ros file: {err}");
         process::exit(1);
@@ -31,7 +39,10 @@ fn main() -> std::io::Result<()> {
 
     let roster: Roster = roster::parse_roster::create_roster(&root);
 
-    display_roster(&roster);
+    if TEST_MODE {
+        display_roster(&roster);
+        display_database(&rules);
+    }
 
     Ok(())
 }
@@ -65,5 +76,22 @@ fn display_roster(roster: &Roster) {
             // println!("{}{}{}", SMALL_LINE, SMALL_LINE, SMALL_LINE);
         }
         // println!("{}{}{}", BIG_LINE, BIG_LINE, BIG_LINE);
+    }
+}
+
+fn display_database(database: &Vec<Rule>) {
+    let organised_rules_vec: Vec<OrganisedRules> =
+        organise::compile_rules::organise_by_phase(database);
+    println!("{}RULES IN DATABASE{}", BIG_LINE, BIG_LINE);
+    for organised_rules in organised_rules_vec {
+        if organised_rules.get_rules().len() > 0 {
+            println!(
+                "{}{:#?} {:#?}{}",
+                BIG_LINE,
+                organised_rules.get_turn(),
+                organised_rules.get_phase(),
+                BIG_LINE
+            );
+        }
     }
 }

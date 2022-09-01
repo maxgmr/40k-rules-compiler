@@ -9,5 +9,29 @@
             "Inexorable",
             "Death Guard"
         ]
+    },
+    {
+        "name": "Test Rule 2",
+        "description": "This is another test rule.",
+        "phase": 16,
+        "turn": 1,
+        "conditions": [
+            "Warlord",
+            "In Play"
+        ] 
+    },
+    {
+        "name": "Disgustingly Resilient",
+        "description": "Each time an attack is allocated to a model in this unit, subtract 1 from the Damage characteristic of that attack (to a minimum of 1).",
+        "phase": 18,
+        "turn": 1,
+        "conditions": []
+    },
+    {
+        "name": "Disgustingly Resilient",
+        "description": "Each time an attack is allocated to a model in this unit, subtract 1 from the Damage characteristic of that attack (to a minimum of 1).",
+        "phase": 30,
+        "turn": 1,
+        "conditions": []
     }
 ]

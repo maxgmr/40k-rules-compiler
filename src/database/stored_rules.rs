@@ -1,6 +1,8 @@
+use serde::Deserialize;
 use serde_json;
 use std::fs;
 use std::io::Result;
+use std::slice::Iter;
 
 const JSON_PATH: &'static str = "./files/rules.json";
 
@@ -12,6 +14,25 @@ pub struct Rule {
     conditions: Vec<String>,
 }
 
+impl Rule {
+    pub fn get_name(&self) -> &String {
+        &self.name
+    }
+    pub fn get_description(&self) -> &String {
+        &self.description
+    }
+    pub fn get_phase(&self) -> &Phase {
+        &self.phase
+    }
+    pub fn get_turn(&self) -> &Turn {
+        &self.turn
+    }
+    pub fn get_conditions(&self) -> &Vec<String> {
+        &self.conditions
+    }
+}
+
+#[derive(Debug)]
 pub enum Phase {
     BeforeGame,
     CommandStart,
@@ -55,7 +76,7 @@ pub enum Phase {
 }
 
 impl Phase {
-    pub fn name(&self, value: i32) -> Option<Phase> {
+    pub fn name(value: i32) -> Option<Phase> {
         match value {
             0 => Some(Phase::BeforeGame),
             1 => Some(Phase::CommandStart),
@@ -144,16 +165,19 @@ impl Phase {
     }
 }
 
+#[derive(Debug)]
 pub enum Turn {
     Friendly,
     Opponent,
+    Both,
 }
 
 impl Turn {
-    pub fn name(&self, value: i32) -> Option<Turn> {
+    pub fn name(value: i32) -> Option<Turn> {
         match value {
             0 => Some(Turn::Friendly),
             1 => Some(Turn::Opponent),
+            2 => Some(Turn::Both),
             _ => None,
         }
     }
@@ -161,21 +185,40 @@ impl Turn {
         match *self {
             Turn::Friendly => 0,
             Turn::Opponent => 1,
+            Turn::Both => 2,
         }
     }
 }
 
-pub fn read_rules() -> Result<Vec<Rule>> {
-    let rules: Vec<Rule> = vec![];
-    // let data = fs::read_to_string(JSON_PATH)?;
-    // let res: Vec<serde_json::Value> = serde_json::from_str(&data)?;
+#[derive(Deserialize, Debug)]
+struct ValueRule {
+    conditions: Vec<String>,
+    description: String,
+    name: String,
+    phase: i32,
+    turn: i32,
+}
 
-    // for obj in res {
-    //     let name = match obj.get("name") {
-    //         Some(x) => String::from(x),
-    //         None => String::from(""),
-    //     }
-    // }
+pub fn read_rules() -> Result<Vec<Rule>> {
+    let mut rules: Vec<Rule> = vec![];
+    let data = fs::read_to_string(JSON_PATH)?;
+    let res: Vec<ValueRule> = serde_json::from_str(&data)?;
+
+    for obj in res {
+        rules.push(Rule {
+            name: obj.name.clone(),
+            description: obj.description.clone(),
+            phase: match Phase::name(obj.phase) {
+                Some(p) => p,
+                None => Phase::BeforeGame,
+            },
+            turn: match Turn::name(obj.turn) {
+                Some(t) => t,
+                None => Turn::Both,
+            },
+            conditions: obj.conditions.clone(),
+        });
+    }
 
     Ok(rules)
 }
